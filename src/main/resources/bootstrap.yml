@@ -1,0 +1,36 @@
+server:
+  port: 8300
+spring:
+  application:
+    name: microservice-gateway-zuul
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:6761/eureka
+  instance:
+    ip-address: true
+
+zuul:
+ routes:
+    users:
+       path: /lind/** #以lind开头的路径被重定向到lind服务
+       serviceId: lind
+ add-host-header: true #显示真实的http头
+ retryable: false #关闭Hystrix的重试功能
+ ratelimit:
+    enabled: true
+   #  repository: REDIS
+    behind-proxy: true
+    policies:
+       users:
+         limit: 5 #限流，每分钟请求5次
+         refresh-interval: 60
+         type:
+           - user
+           - origin
+           - url
+         #       url类型的限流就是通过请求路径区分
+         #       origin是通过客户端IP地址区分
+         #       user是通过授权用户进行区分，也包括匿名用户
